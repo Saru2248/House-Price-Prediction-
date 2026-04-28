@@ -133,7 +133,7 @@ House-Price-Prediction/
 ## ⚙️ Installation
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/house-price-prediction.git
+git clone https://github.com/Saru2248/house-price-prediction.git
 cd house-price-prediction
 ````
 
