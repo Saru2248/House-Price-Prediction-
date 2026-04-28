@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>House Price Prediction | ML Dashboard</title>
+  <meta name="description" content="AI-powered house price prediction using XGBoost, Random Forest & Linear Regression. Built with Python, FastAPI, and scikit-learn." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+
+<!-- ══ NAVBAR ══ -->
+<nav class="navbar" id="navbar">
+  <div class="nav-inner">
+    <a class="nav-brand" href="#">
+      <span class="brand-icon">🏠</span>
+      <span class="brand-text">PriceAI</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#overview"  class="nav-link active">Overview</a></li>
+      <li><a href="#predict"   class="nav-link">Predict</a></li>
+      <li><a href="#models"    class="nav-link">Models</a></li>
+      <li><a href="#eda"       class="nav-link">EDA Charts</a></li>
+      <li><a href="#dataset"   class="nav-link">Dataset</a></li>
+    </ul>
+    <div class="nav-badge">XGBoost · R² 87%</div>
+  </div>
+</nav>
+
+<!-- ══ HERO ══ -->
+<section class="hero" id="overview">
+  <div class="hero-bg">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+    <div class="grid-lines"></div>
+  </div>
+  <div class="hero-content">
+    <div class="hero-badge">🤖 Machine Learning · Real Estate</div>
+    <h1 class="hero-title">
+      House Price<br/>
+      <span class="gradient-text">Prediction</span>
+    </h1>
+    <p class="hero-sub">
+      Powered by XGBoost · Random Forest · Linear Regression<br/>
+      Trained on 2,000 Indian property records
+    </p>
+    <div class="hero-stats" id="heroStats">
+      <div class="hstat"><span class="hstat-val" id="hstat-records">—</span><span class="hstat-label">Records</span></div>
+      <div class="hstat-div"></div>
+      <div class="hstat"><span class="hstat-val" id="hstat-r2">87%</span><span class="hstat-label">Best R²</span></div>
+      <div class="hstat-div"></div>
+      <div class="hstat"><span class="hstat-val" id="hstat-locations">10</span><span class="hstat-label">Locations</span></div>
+      <div class="hstat-div"></div>
+      <div class="hstat"><span class="hstat-val" id="hstat-mape">—</span><span class="hstat-label">MAPE</span></div>
+    </div>
+    <div class="hero-cta">
+      <a href="#predict" class="btn-primary">Try Prediction <span>→</span></a>
+      <a href="#models"  class="btn-ghost">View Models</a>
+    </div>
+  </div>
+</section>
+
+<!-- ══ STATS CARDS ══ -->
+<section class="section section-cards" id="statsSection">
+  <div class="container">
+    <div class="cards-grid" id="statsCards">
+      <div class="stat-card loading"><div class="card-shimmer"></div></div>
+      <div class="stat-card loading"><div class="card-shimmer"></div></div>
+      <div class="stat-card loading"><div class="card-shimmer"></div></div>
+      <div class="stat-card loading"><div class="card-shimmer"></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ PREDICT SECTION ══ -->
+<section class="section" id="predict">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag">🏡 AI Prediction</div>
+      <h2 class="section-title">Predict Your Property Price</h2>
+      <p class="section-sub">Enter property details and get an instant AI-powered price estimate</p>
+    </div>
+
+    <div class="predict-layout">
+      <!-- FORM -->
+      <div class="predict-form-card glass-card">
+        <h3 class="form-title">Property Details</h3>
+        <form id="predictForm" autocomplete="off">
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="area_sqft">Area (sq.ft)</label>
+              <div class="input-wrap">
+                <span class="input-icon">📐</span>
+                <input type="number" id="area_sqft" min="400" max="4000" value="1200" required />
+              </div>
+              <input type="range" class="slider" id="area_slider" min="400" max="4000" value="1200" step="50" />
+            </div>
+            <div class="form-group">
+              <label for="bedrooms">Bedrooms</label>
+              <div class="btn-group" id="bed-group">
+                <button type="button" class="seg-btn" data-val="1">1</button>
+                <button type="button" class="seg-btn active" data-val="2">2</button>
+                <button type="button" class="seg-btn" data-val="3">3</button>
+                <button type="button" class="seg-btn" data-val="4">4</button>
+                <button type="button" class="seg-btn" data-val="5">5</button>
+              </div>
+              <input type="hidden" id="bedrooms" value="2" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="bathrooms">Bathrooms</label>
+              <div class="btn-group" id="bath-group">
+                <button type="button" class="seg-btn" data-val="1">1</button>
+                <button type="button" class="seg-btn active" data-val="2">2</button>
+                <button type="button" class="seg-btn" data-val="3">3</button>
+                <button type="button" class="seg-btn" data-val="4">4</button>
+              </div>
+              <input type="hidden" id="bathrooms" value="2" />
+            </div>
+            <div class="form-group">
+              <label for="balconies">Balconies</label>
+              <div class="btn-group" id="bal-group">
+                <button type="button" class="seg-btn" data-val="0">0</button>
+                <button type="button" class="seg-btn active" data-val="1">1</button>
+                <button type="button" class="seg-btn" data-val="2">2</button>
+                <button type="button" class="seg-btn" data-val="3">3</button>
+              </div>
+              <input type="hidden" id="balconies" value="1" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="location">Location</label>
+              <div class="select-wrap">
+                <span class="input-icon">📍</span>
+                <select id="location" required>
+                  <option value="Worli">Worli</option>
+                  <option value="Bandra">Bandra</option>
+                  <option value="Dadar">Dadar</option>
+                  <option value="Powai">Powai</option>
+                  <option value="Andheri" selected>Andheri</option>
+                  <option value="Navi Mumbai">Navi Mumbai</option>
+                  <option value="Borivali">Borivali</option>
+                  <option value="Thane">Thane</option>
+                  <option value="Pune">Pune</option>
+                  <option value="Nashik">Nashik</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="furnishing">Furnishing</label>
+              <div class="select-wrap">
+                <span class="input-icon">🛋️</span>
+                <select id="furnishing" required>
+                  <option value="Unfurnished">Unfurnished</option>
+                  <option value="Semi-Furnished" selected>Semi-Furnished</option>
+                  <option value="Furnished">Furnished</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="age_years">Property Age (years): <span id="age_val">5</span></label>
+              <input type="range" class="slider" id="age_years" min="0" max="30" value="5" />
+              <input type="hidden" id="age_hidden" value="5" />
+            </div>
+            <div class="form-group">
+              <label for="parking">Parking Spots</label>
+              <div class="btn-group" id="park-group">
+                <button type="button" class="seg-btn" data-val="0">None</button>
+                <button type="button" class="seg-btn active" data-val="1">1</button>
+                <button type="button" class="seg-btn" data-val="2">2</button>
+              </div>
+              <input type="hidden" id="parking" value="1" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="floor">Floor Number: <span id="floor_val">7</span></label>
+              <input type="range" class="slider" id="floor" min="0" max="30" value="7" />
+              <input type="hidden" id="floor_hidden" value="7" />
+            </div>
+            <div class="form-group">
+              <label for="total_floors">Total Floors: <span id="tf_val">15</span></label>
+              <input type="range" class="slider" id="total_floors" min="2" max="30" value="15" />
+              <input type="hidden" id="tf_hidden" value="15" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group full-width">
+              <label for="distance_city_km">Distance from City Centre (km): <span id="dist_val">8.5</span></label>
+              <input type="range" class="slider" id="distance_city_km" min="0.5" max="40" value="8.5" step="0.5" />
+              <input type="hidden" id="dist_hidden" value="8.5" />
+            </div>
+          </div>
+
+          <button type="submit" class="predict-btn" id="predictBtn">
+            <span class="btn-text">✨ Predict Price</span>
+            <span class="btn-loader hidden">⏳ Predicting...</span>
+          </button>
+        </form>
+      </div>
+
+      <!-- RESULT PANEL -->
+      <div class="result-panel">
+        <div class="result-card glass-card" id="resultCard">
+          <div class="result-placeholder" id="resultPlaceholder">
+            <div class="placeholder-icon">🏠</div>
+            <p>Fill in property details<br/>and click <strong>Predict Price</strong></p>
+          </div>
+          <div class="result-content hidden" id="resultContent">
+            <div class="result-tag">AI Price Estimate</div>
+            <div class="result-price" id="resultPrice">—</div>
+            <div class="result-crore" id="resultCrore"></div>
+            <div class="result-divider"></div>
+            <div class="result-meta" id="resultMeta"></div>
+            <div class="result-bar-wrap">
+              <div class="result-bar" id="resultBar"></div>
+            </div>
+            <p class="result-note">Powered by XGBoost · ±2.7% MAPE</p>
+          </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="quick-stats glass-card">
+          <h4>Market Reference</h4>
+          <div class="qs-row"><span>Avg Price</span><span class="qs-val" id="qs-avg">—</span></div>
+          <div class="qs-row"><span>Min Price</span><span class="qs-val" id="qs-min">—</span></div>
+          <div class="qs-row"><span>Max Price</span><span class="qs-val" id="qs-max">—</span></div>
+          <div class="qs-row"><span>Avg Area</span><span class="qs-val" id="qs-area">—</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ MODELS SECTION ══ -->
+<section class="section section-dark" id="models">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag">📊 Benchmarks</div>
+      <h2 class="section-title">Model Comparison</h2>
+      <p class="section-sub">4 regression algorithms trained on the same dataset — XGBoost wins</p>
+    </div>
+    <div class="models-grid" id="modelsGrid">
+      <div class="model-card-placeholder loading"><div class="card-shimmer"></div></div>
+    </div>
+    <div class="eval-strip glass-card" id="evalStrip">
+      <div class="es-item"><span class="es-label">Best Model MAE</span><span class="es-val" id="es-mae">—</span></div>
+      <div class="es-item"><span class="es-label">Best Model RMSE</span><span class="es-val" id="es-rmse">—</span></div>
+      <div class="es-item"><span class="es-label">Full Dataset R²</span><span class="es-val" id="es-r2">—</span></div>
+      <div class="es-item"><span class="es-label">MAPE</span><span class="es-val" id="es-mape">—</span></div>
+      <div class="es-item"><span class="es-label">5-Fold CV R²</span><span class="es-val" id="es-cv">—</span></div>
+    </div>
+    <!-- Mini bar chart -->
+    <div class="chart-container glass-card">
+      <h3 class="chart-title">R² Score Comparison</h3>
+      <div class="bar-chart" id="r2BarChart"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ EDA CHARTS ══ -->
+<section class="section" id="eda">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag">📈 Exploratory Data Analysis</div>
+      <h2 class="section-title">Visualisations</h2>
+      <p class="section-sub">8 charts generated by the ML pipeline</p>
+    </div>
+    <div class="charts-gallery" id="chartsGallery">
+      <div class="chart-loader">Loading charts...</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ DATASET SECTION ══ -->
+<section class="section section-dark" id="dataset">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag">🗃️ Dataset</div>
+      <h2 class="section-title">Dataset Insights</h2>
+      <p class="section-sub">2,000 synthetic Indian property records</p>
+    </div>
+    <div class="dataset-grid">
+      <div class="glass-card">
+        <h4 class="mini-title">Price Buckets</h4>
+        <div class="mini-chart" id="priceBuckets"></div>
+      </div>
+      <div class="glass-card">
+        <h4 class="mini-title">Avg Price by Location (₹ Lakhs)</h4>
+        <div class="mini-chart" id="locationChart"></div>
+      </div>
+      <div class="glass-card">
+        <h4 class="mini-title">Furnishing Mix</h4>
+        <div class="mini-chart donut-wrap" id="furnishChart"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FOOTER ══ -->
+<footer class="footer">
+  <div class="container">
+    <p>🏠 <strong>House Price Prediction</strong> &nbsp;·&nbsp; Built with Python, FastAPI, XGBoost &amp; scikit-learn</p>
+    <p class="footer-sub">Machine Learning Portfolio Project &nbsp;·&nbsp; Trained on Synthetic Indian Real Estate Data</p>
+  </div>
+</footer>
+
+<!-- Lightbox overlay -->
+<div class="lightbox hidden" id="lightbox">
+  <div class="lb-close" id="lbClose">✕</div>
+  <img class="lb-img" id="lbImg" src="" alt="chart" />
+</div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

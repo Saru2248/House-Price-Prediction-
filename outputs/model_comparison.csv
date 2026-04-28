@@ -1,0 +1,5 @@
+Model,MAE,RMSE,R2,Train_sec
+XGBoost,1.0246,1.5479,0.8692,0.62
+Random Forest,1.216,1.8658,0.8099,1.4
+Decision Tree,1.6068,2.4614,0.6692,0.02
+Linear Regression,2.5826,3.4771,0.3399,0.02
